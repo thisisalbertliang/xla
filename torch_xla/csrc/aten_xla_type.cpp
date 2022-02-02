@@ -133,7 +133,7 @@ std::pair<XLATensor, XLATensor> GetBinaryOperands(const at::Tensor& self,
 std::vector<xla::int64_t> GetOutputSizeWithScale(
     absl::Span<const xla::int64_t> input_size,
     const c10::optional<at::ArrayRef<double>>& scale_factors,
-    const c10::optional<at::IntArrayRef>& output_size) {
+    const at::OptionalIntArrayRef& output_size) {
   if (!output_size) {
     XLA_CHECK(scale_factors);
     XLA_CHECK_EQ(scale_factors->size(), 2);
@@ -3138,7 +3138,7 @@ at::Tensor XLANativeFunctions::std(const at::Tensor& self, at::IntArrayRef dim,
 }
 
 at::Tensor XLANativeFunctions::std(const at::Tensor& self,
-                                   c10::optional<at::IntArrayRef> dim,
+                                   at::OptionalIntArrayRef dim,
                                    c10::optional<int64_t> correction,
                                    bool keepdim) {
   XLA_FN_COUNTER("xla::");
@@ -3151,7 +3151,7 @@ at::Tensor XLANativeFunctions::std(const at::Tensor& self,
 }
 
 std::tuple<at::Tensor, at::Tensor> XLANativeFunctions::std_mean(
-    const at::Tensor& self, c10::optional<at::IntArrayRef> dim,
+    const at::Tensor& self, at::OptionalIntArrayRef dim,
     c10::optional<int64_t> correction, bool keepdim) {
   XLA_FN_COUNTER("xla::");
   XLATensor self_tensor = bridge::GetXlaTensor(self);
@@ -3432,7 +3432,7 @@ at::Tensor XLANativeFunctions::upsample_bilinear2d_backward(
 }
 
 at::Tensor XLANativeFunctions::upsample_nearest2d(
-    const at::Tensor& input, c10::optional<at::IntArrayRef> output_size,
+    const at::Tensor& input, at::OptionalIntArrayRef output_size,
     c10::optional<at::ArrayRef<double>> scale_factors) {
   XLA_FN_COUNTER("xla::");
   XLATensor input_tensor = bridge::GetXlaTensor(input);
@@ -3452,7 +3452,7 @@ at::Tensor XLANativeFunctions::upsample_nearest2d(
 }
 
 at::Tensor XLANativeFunctions::upsample_nearest2d_backward(
-    const at::Tensor& grad_output, c10::optional<at::IntArrayRef> output_size,
+    const at::Tensor& grad_output, at::OptionalIntArrayRef output_size,
     at::IntArrayRef input_size,
     c10::optional<at::ArrayRef<double>> scale_factors) {
   XLA_FN_COUNTER("xla::");
@@ -3535,7 +3535,7 @@ at::Tensor XLANativeFunctions::var(const at::Tensor& self, at::IntArrayRef dim,
 }
 
 at::Tensor XLANativeFunctions::var(const at::Tensor& self,
-                                   c10::optional<at::IntArrayRef> dim,
+                                   at::OptionalIntArrayRef dim,
                                    c10::optional<int64_t> correction,
                                    bool keepdim) {
   XLA_FN_COUNTER("xla::");
@@ -3549,7 +3549,7 @@ at::Tensor XLANativeFunctions::var(const at::Tensor& self,
 }
 
 std::tuple<at::Tensor, at::Tensor> XLANativeFunctions::var_mean(
-    const at::Tensor& self, c10::optional<at::IntArrayRef> dim,
+    const at::Tensor& self, at::OptionalIntArrayRef dim,
     c10::optional<int64_t> correction, bool keepdim) {
   XLA_FN_COUNTER("xla::");
   XLATensor self_tensor = bridge::GetXlaTensor(self);
