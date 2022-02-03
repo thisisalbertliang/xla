@@ -310,6 +310,7 @@ XrtComputationClient::CreateAsyncDatas(absl::Span<const TensorSource> tensors) {
     results[i] = std::make_shared<XrtData>(this, tensors[i].device,
                                            tensors[i].shape, handle_ptr);
   }
+  CreateAsyncDataHandlesCounter()->AddValue(results.size());
   return results;
 }
 

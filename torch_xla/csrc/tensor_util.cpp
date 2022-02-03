@@ -108,14 +108,6 @@ bool ShouldUse32BitLong() {
   return use_32bit_long;
 }
 
-bool ShouldTransferAsync() {
-  bool transfer_async = xla::sys_util::GetEnvBool("XLA_TRANSFER_ASYNC", false);
-  if (transfer_async) {
-    TF_LOG(INFO) << "Transferring data asynchronouslly";
-  }
-  return transfer_async;
-}
-
 bool UseBF16() {
   static bool use_bf16 = ShouldUseBF16();
   return use_bf16;
@@ -139,11 +131,6 @@ bool DowncastF16() {
 bool Use32BitLong() {
   static bool use_32bit_long = ShouldUse32BitLong();
   return use_32bit_long;
-}
-
-bool TransferAsync() {
-  static bool transfer_async = ShouldTransferAsync();
-  return transfer_async;
 }
 
 xla::PrimitiveType XlaTypeFromTensorType(at::ScalarType scalar_type,
@@ -663,9 +650,10 @@ void PopulateTensorBuffer(const at::Tensor& tensor,
 
 xla::ComputationClient::DataPtr TensorToXlaData(const at::Tensor& tensor,
                                                 const xla::Shape& shape,
-                                                const Device& device) {
+                                                const Device& device,
+                                                bool transfer_async) {
   XLA_TIMED("TensorToData");
-  if (TransferAsync()) {
+  if (transfer_async) {
     std::shared_ptr<DataAsync> async = std::make_shared<DataAsync>();
     auto populate_mwait = std::make_shared<xla::util::MultiWait>(1);
     auto populate_fn =
@@ -825,17 +813,19 @@ bool TensorCompare(const at::Tensor& t1, const at::Tensor& t2) {
 }
 
 xla::ComputationClient::DataPtr TensorToXlaData(const at::Tensor& tensor,
-                                                const Device& device) {
-  return TensorToXlaData(
-      tensor, CreateComputationShapeFromTensor(tensor, &device), device);
+                                                const Device& device,
+                                                bool transfer_async) {
+  return TensorToXlaData(tensor,
+                         CreateComputationShapeFromTensor(tensor, &device),
+                         device, transfer_async);
 }
 
 std::vector<xla::ComputationClient::DataPtr> CreateTensorsData(
     const std::vector<at::Tensor>& tensors,
-    const std::vector<std::string>& devices) {
+    const std::vector<std::string>& devices, bool transfer_async) {
   XLA_TIMED("TensorToData");
   XLA_CHECK_EQ(tensors.size(), devices.size());
-  if (TransferAsync()) {
+  if (transfer_async) {
     std::shared_ptr<DataAsync> async = std::make_shared<DataAsync>();
     auto populate_mwait =
         std::make_shared<xla::util::MultiWait>(tensors.size());
